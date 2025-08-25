@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopeeDeals - Săn Deal Shopee Hàng Ngày</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg { 
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); 
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .btn-animated {
+            transition: all 0.3s ease;
+        }
+        .btn-animated:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .pulse-ring {
+            animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(.33);
+            }
+            80%, 100% {
+                opacity: 0;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.3) translateY(50px); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.05) translateY(-10px); 
+            }
+            70% { 
+                transform: scale(0.9) translateY(0); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+
+        .flash-sale-timer {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+
+        .category-orange { background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%); }
+        .category-blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .category-green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .category-pink { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        .category-purple { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .category-yellow { background: linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%); }
+        .category-red { background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%); }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .notification {
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .voucher-card {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border: 2px dashed #fdcb6e;
+        }
+
+        .flash-glow {
+            animation: flashGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes flashGlow {
+            from { box-shadow: 0 0 20px rgba(255, 75, 43, 0.5); }
+            to { box-shadow: 0 0 30px rgba(255, 75, 43, 0.8); }
+        }
+
+        .sticky-header {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6b35;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="sticky-header sticky top-0 z-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center relative">
+                            <span class="text-white font-bold text-xl">🛍️</span>
+                            <div class="absolute inset-0 rounded-xl bg-orange-500 opacity-30 pulse-ring"></div>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold gradient-text">ShopeeDeals</h1>
+                            <p class="text-xs text-gray-500">Săn deal hàng ngày</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="#hero" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Trang Chủ</a>
+                        <a href="#categories" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Danh Mục</a>
+                        <a href="#flashsales" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Flash Sale</a>
+                        <a href="#vouchers" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Voucher</a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="gradient-bg py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="bounce-in">
+                    <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
+                        🔥 Săn Deal Shopee
+                        <span class="block text-yellow-300">Hàng Ngày!</span>
+                    </h1>
+                    <p class="text-xl text-white text-opacity-90 mb-8 max-w-2xl mx-auto">
+                        Khám phá hàng ngàn sản phẩm giá tốt, voucher miễn phí và flash sale hấp dẫn từ Shopee
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button onclick="scrollToSection('flashsales')" class="bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg btn-animated hover:bg-gray-50">
+                            ⚡ Xem Flash Sale
+                        </button>
+                        <button onclick="scrollToSection('vouchers')" class="bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg btn-animated hover:bg-yellow-300">
+                            🎫 Lấy Voucher
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center fade-in">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4 floating">
+                        <span class="text-3xl text-white">🛍️</span>
+                    </div>
+                    <h3 id="statsProducts" class="text-3xl font-bold text-gray-800 mb-2">0</h3>
+                    <p class="text-gray-600">Sản Phẩm Hot</p>
+                </div>
+                <div class="text-center fade-in" style="animation-delay: 0.1s">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 0.5s">
+                        <span class="text-3xl text-white">🏪</span>
+                    </div>
+                    <h3 id="statsCategories" class="text-3xl font-bold text-gray-800 mb-2">0</h3>
+                    <p class="text-gray-600">Danh Mục</p>
+                </div>
+                <div class="text-center fade-in" style="animation-delay: 0.2s">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 1s">
+                        <span class="text-3xl text-white">🎫</span>
+                    </div>
+                    <h3 id="statsVouchers" class="text-3xl font-bold text-gray-800 mb-2">0</h3>
+                    <p class="text-gray-600">Voucher Miễn Phí</p>
+                </div>
+                <div class="text-center fade-in" style="animation-delay: 0.3s">
+                    <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 1.5s">
+                        <span class="text-3xl text-white">🔥</span>
+                    </div>
+                    <h3 id="statsFlashSales" class="text-3xl font-bold text-gray-800 mb-2">0</h3>
+                    <p class="text-gray-600">Flash Sale</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flash Sales Section -->
+    <section id="flashsales" class="py-20 bg-gradient-to-br from-red-50 to-pink-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="slide-in">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                        🔥 Flash Sale Hôm Nay
+                    </h2>
+                    <p class="text-xl text-gray-600 mb-8">Giá sốc chỉ có hôm nay - Nhanh tay kẻo lỡ!</p>
+                    <div id="flashSaleTimer" class="flash-sale-timer text-white px-8 py-4 rounded-2xl inline-block font-bold text-lg flash-glow">
+                        ⏰ Kết thúc sau: <span id="countdown">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="flashSalesList" class="product-grid">
+                <!-- Flash sales will be loaded here -->
+            </div>
+            
+            <div id="noFlashSales" class="text-center py-16 hidden">
+                <div class="text-8xl mb-6">🔥</div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">Chưa có Flash Sale nào</h3>
+                <p class="text-gray-500 mb-8">Flash Sale sẽ được cập nhật sớm nhất!</p>
+                <button onclick="openAdmin()" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                    ➕ Thêm Flash Sale
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="slide-in">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                        🏪 Danh Mục Sản Phẩm
+                    </h2>
+                    <p class="text-xl text-gray-600">Khám phá các danh mục sản phẩm hot nhất</p>
+                </div>
+            </div>
+            
+            <div id="categoriesList" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Categories will be loaded here -->
+            </div>
+            
+            <div id="noCategories" class="text-center py-16 hidden">
+                <div class="text-8xl mb-6">🏪</div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">Chưa có danh mục nào</h3>
+                <p class="text-gray-500 mb-8">Danh mục sản phẩm sẽ được cập nhật sớm!</p>
+                <button onclick="openAdmin()" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                    ➕ Thêm Danh Mục
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Products Modal -->
+    <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div id="modalCategoryIcon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"></div>
+                            <div>
+                                <h3 id="modalCategoryName" class="text-2xl font-bold text-gray-800"></h3>
+                                <p id="modalCategoryDescription" class="text-gray-600"></p>
+                            </div>
+                        </div>
+                        <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
+                    </div>
+                </div>
+                <div class="p-6 overflow-y-auto max-h-[70vh]">
+                    <div id="categoryProductsList" class="product-grid">
+                        <!-- Category products will be loaded here -->
+                    </div>
+                    <div id="noCategoryProducts" class="text-center py-16 hidden">
+                        <div class="text-6xl mb-4">📦</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Chưa có sản phẩm nào</h3>
+                        <p class="text-gray-500 mb-6">Danh mục này chưa có sản phẩm nào</p>
+                        <button onclick="openAdmin()" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                            ➕ Thêm Sản Phẩm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <section id="products" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="slide-in">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                        🛍️ Sản Phẩm Hot
+                    </h2>
+                    <p class="text-xl text-gray-600">Những sản phẩm được yêu thích nhất</p>
+                </div>
+            </div>
+            
+            <div id="productsList" class="product-grid">
+                <!-- Products will be loaded here -->
+            </div>
+            
+            <div id="noProducts" class="text-center py-16 hidden">
+                <div class="text-8xl mb-6">🛍️</div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">Chưa có sản phẩm nào</h3>
+                <p class="text-gray-500 mb-8">Sản phẩm hot sẽ được cập nhật sớm nhất!</p>
+                <button onclick="openAdmin()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                    ➕ Thêm Sản Phẩm
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vouchers Section -->
+    <section id="vouchers" class="py-20 bg-gradient-to-br from-yellow-50 to-orange-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="slide-in">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                        🎫 Voucher Miễn Phí
+                    </h2>
+                    <p class="text-xl text-gray-600">Lấy ngay voucher giảm giá hấp dẫn</p>
+                </div>
+            </div>
+            
+            <div id="vouchersList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Vouchers will be loaded here -->
+            </div>
+            
+            <div id="noVouchers" class="text-center py-16 hidden">
+                <div class="text-8xl mb-6">🎫</div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">Chưa có voucher nào</h3>
+                <p class="text-gray-500 mb-8">Voucher miễn phí sẽ được cập nhật sớm!</p>
+                <button onclick="openAdmin()" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                    ➕ Thêm Voucher
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center">
+                            <span class="text-white font-bold text-2xl">🛍️</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold">ShopeeDeals</h3>
+                            <p class="text-gray-400">Săn deal hàng ngày</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-6 max-w-md">
+                        Nền tảng chia sẻ deal Shopee tốt nhất Việt Nam. Cập nhật hàng ngày các sản phẩm giá tốt, voucher miễn phí và flash sale hấp dẫn.
+                    </p>
+                    <div class="flex space-x-4">
+                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors">
+                            <span class="text-white">📘</span>
+                        </div>
+                        <div class="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center cursor-pointer hover:bg-pink-700 transition-colors">
+                            <span class="text-white">📷</span>
+                        </div>
+                        <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center cursor-pointer hover:bg-red-700 transition-colors">
+                            <span class="text-white">📺</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Liên Kết</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#hero" class="text-gray-300 hover:text-white transition-colors">Trang Chủ</a></li>
+                        <li><a href="#categories" class="text-gray-300 hover:text-white transition-colors">Danh Mục</a></li>
+                        <li><a href="#flashsales" class="text-gray-300 hover:text-white transition-colors">Flash Sale</a></li>
+                        <li><a href="#vouchers" class="text-gray-300 hover:text-white transition-colors">Voucher</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Hỗ Trợ</h4>
+                    <ul class="space-y-3">
+                        <li><span class="text-gray-300">📧 support:@shopeedeals.vn</span></li>
+                        <li><span class="text-gray-300">📞 1900-xxxx</span></li>
+                        <li><span class="text-gray-300">🕒 8:00 - 22:00 hàng ngày</span></li>
+                        
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-12 pt-8 text-center">
+                <p class="text-gray-400">
+                   
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let flashSaleTimer;
+        let currentCategoryId = null;
+
+        // Data Management
+        function loadDataFromStorage() {
+            return {
+                products: JSON.parse(localStorage.getItem('shopeedeals_products') || '[]'),
+                vouchers: JSON.parse(localStorage.getItem('shopeedeals_vouchers') || '[]'),
+                flashSales: JSON.parse(localStorage.getItem('shopeedeals_flashsales') || '[]'),
+                categories: JSON.parse(localStorage.getItem('shopeedeals_categories') || '[]'),
+                categoryProducts: JSON.parse(localStorage.getItem('shopeedeals_categoryproducts') || '{}')
+            };
+        }
+
+        // Initialize Page
+        function initializePage() {
+            loadStats();
+            loadFlashSales();
+            loadCategories();
+            loadProducts();
+            loadVouchers();
+            startFlashSaleTimer();
+            
+            // Listen for storage changes (when admin updates data)
+            window.addEventListener('storage', function(e) {
+                if (e.key && e.key.startsWith('shopeedeals_')) {
+                    loadStats();
+                    loadFlashSales();
+                    loadCategories();
+                    loadProducts();
+                    loadVouchers();
+                    showNotification('🔄 Dữ liệu đã được cập nhật!', 'info');
+                }
+            });
+        }
+
+        // Load Statistics
+        function loadStats() {
+            const data = loadDataFromStorage();
+            
+            // Animate counter
+            animateCounter('statsProducts', data.products.length);
+            animateCounter('statsCategories', data.categories.length);
+            animateCounter('statsVouchers', data.vouchers.length);
+            animateCounter('statsFlashSales', data.flashSales.length);
+        }
+
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const startValue = 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * progress);
+                
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Load Flash Sales
+        function loadFlashSales() {
+            const { flashSales } = loadDataFromStorage();
+            const container = document.getElementById('flashSalesList');
+            const noDataDiv = document.getElementById('noFlashSales');
+            
+            if (flashSales.length === 0) {
+                container.classList.add('hidden');
+                noDataDiv.classList.remove('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            noDataDiv.classList.add('hidden');
+            container.innerHTML = '';
+            
+            flashSales.forEach((sale, index) => {
+                const discount = Math.round((parseInt(sale.original.replace(/[^\d]/g, '')) - parseInt(sale.price.replace(/[^\d]/g, ''))) / parseInt(sale.original.replace(/[^\d]/g, '')) * 100);
+                
+                const saleCard = document.createElement('div');
+                saleCard.className = 'bg-white rounded-2xl shadow-lg overflow-hidden card-hover fade-in';
+                saleCard.style.animationDelay = `${index * 0.1}s`;
+                saleCard.innerHTML = `
+                    <div class="relative">
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flash-glow">
+                                🔥 -${discount}%
+                            </span>
+                        </div>
+                        <div class="absolute top-4 right-4 z-10">
+                            <span class="bg-black bg-opacity-50 text-white px-2 py-1 rounded-lg text-xs">
+                                ⏰ ${sale.time}
+                            </span>
+                        </div>
+                        <div class="h-48 bg-gradient-to-br from-red-100 to-pink-100 flex items-center justify-center">
+                            <span class="text-6xl">🛍️</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-3 line-clamp-2">${sale.product}</h3>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="text-2xl font-bold text-red-600">${sale.price}</span>
+                            <span class="text-gray-400 line-through">${sale.original}</span>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-600">📦 Còn ${sale.quantity} sản phẩm</span>
+                            <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-red-500 rounded-full" style="width: ${Math.max(10, (sale.quantity / 100) * 100)}%"></div>
+                            </div>
+                        </div>
+                        <button onclick="buyNow('${sale.link}')" class="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold btn-animated">
+                            🛒 Mua Ngay
+                        </button>
+                    </div>
+                `;
+                container.appendChild(saleCard);
+            });
+        }
+
+        // Load Categories
+        function loadCategories() {
+            const { categories } = loadDataFromStorage();
+            const container = document.getElementById('categoriesList');
+            const noDataDiv = document.getElementById('noCategories');
+            
+            if (categories.length === 0) {
+                container.classList.add('hidden');
+                noDataDiv.classList.remove('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            noDataDiv.classList.add('hidden');
+            container.innerHTML = '';
+            
+            categories.forEach((category, index) => {
+                const { categoryProducts } = loadDataFromStorage();
+                const productsCount = (categoryProducts[category.id] || []).length;
+                
+                const categoryCard = document.createElement('div');
+                categoryCard.className = `category-${category.color} text-white rounded-2xl p-6 text-center cursor-pointer card-hover fade-in`;
+                categoryCard.style.animationDelay = `${index * 0.1}s`;
+                categoryCard.onclick = () => openCategoryModal(category.id);
+                categoryCard.innerHTML = `
+                    <div class="text-5xl mb-4 floating" style="animation-delay: ${index * 0.2}s">${category.icon}</div>
+                    <h3 class="text-xl font-bold mb-2">${category.name}</h3>
+                    <p class="text-white text-opacity-80 text-sm mb-4">${category.description}</p>
+                    <div class="bg-white bg-opacity-20 rounded-lg py-2 px-4 inline-block">
+                        <span class="text-sm font-medium">📦 ${productsCount} sản phẩm</span>
+                    </div>
+                `;
+                container.appendChild(categoryCard);
+            });
+        }
+
+        // Load Products
+        function loadProducts() {
+            const { products } = loadDataFromStorage();
+            const container = document.getElementById('productsList');
+            const noDataDiv = document.getElementById('noProducts');
+            
+            if (products.length === 0) {
+                container.classList.add('hidden');
+                noDataDiv.classList.remove('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            noDataDiv.classList.add('hidden');
+            container.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const discount = product.originalPrice ? 
+                    Math.round((parseInt(product.originalPrice.replace(/[^\d]/g, '')) - parseInt(product.price.replace(/[^\d]/g, ''))) / parseInt(product.originalPrice.replace(/[^\d]/g, '')) * 100) : 0;
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-2xl shadow-lg overflow-hidden card-hover fade-in';
+                productCard.style.animationDelay = `${index * 0.1}s`;
+                productCard.innerHTML = `
+                    <div class="relative">
+                        ${discount > 0 ? `
+                            <div class="absolute top-4 left-4 z-10">
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                    -${discount}%
+                                </span>
+                            </div>
+                        ` : ''}
+                        <div class="h-48 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center">
+                            <span class="text-6xl">${product.image || '🛍️'}</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-3 line-clamp-2">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">${product.description}</p>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="text-2xl font-bold text-orange-600">${product.price}</span>
+                            ${product.originalPrice ? `<span class="text-gray-400 line-through">${product.originalPrice}</span>` : ''}
+                        </div>
+                        <button onclick="buyNow('${product.link}')" class="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white py-3 rounded-xl font-semibold btn-animated">
+                            🛒 Mua Ngay
+                        </button>
+                    </div>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+
+        // Load Vouchers
+        function loadVouchers() {
+            const { vouchers } = loadDataFromStorage();
+            const container = document.getElementById('vouchersList');
+            const noDataDiv = document.getElementById('noVouchers');
+            
+            if (vouchers.length === 0) {
+                container.classList.add('hidden');
+                noDataDiv.classList.remove('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            noDataDiv.classList.add('hidden');
+            container.innerHTML = '';
+            
+            vouchers.forEach((voucher, index) => {
+                const voucherCard = document.createElement('div');
+                voucherCard.className = 'voucher-card rounded-2xl p-6 text-center card-hover fade-in';
+                voucherCard.style.animationDelay = `${index * 0.1}s`;
+                voucherCard.innerHTML = `
+                    <div class="text-4xl mb-4">🎫</div>
+                    <div class="bg-white rounded-lg p-4 mb-4">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">${voucher.code}</h3>
+                        <p class="text-orange-600 font-bold text-lg">Giảm ${voucher.discount}</p>
+                    </div>
+                    <div class="space-y-2 text-gray-700 mb-6">
+                        <p class="flex items-center justify-center space-x-2">
+                            <span>📋</span>
+                            <span class="text-sm">${voucher.condition}</span>
+                        </p>
+                        <p class="flex items-center justify-center space-x-2">
+                            <span>⏰</span>
+                            <span class="text-sm">HSD: ${voucher.expiry}</span>
+                        </p>
+                    </div>
+                    <button onclick="copyVoucher('${voucher.code}')" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-3 rounded-xl font-semibold btn-animated">
+                        📋 Copy Mã
+                    </button>
+                `;
+                container.appendChild(voucherCard);
+            });
+        }
+
+        // Category Modal Functions
+        function openCategoryModal(categoryId) {
+            const { categories, categoryProducts } = loadDataFromStorage();
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            currentCategoryId = categoryId;
+            const products = categoryProducts[categoryId] || [];
+            
+            // Update modal header
+            document.getElementById('modalCategoryIcon').textContent = category.icon;
+            document.getElementById('modalCategoryIcon').className = `w-12 h-12 category-${category.color} rounded-xl flex items-center justify-center text-2xl`;
+            document.getElementById('modalCategoryName').textContent = category.name;
+            document.getElementById('modalCategoryDescription').textContent = category.description;
+            
+            // Load products
+            const container = document.getElementById('categoryProductsList');
+            const noDataDiv = document.getElementById('noCategoryProducts');
+            
+            if (products.length === 0) {
+                container.classList.add('hidden');
+                noDataDiv.classList.remove('hidden');
+            } else {
+                container.classList.remove('hidden');
+                noDataDiv.classList.add('hidden');
+                container.innerHTML = '';
+                
+                products.forEach((product, index) => {
+                    const discount = product.original ? 
+                        Math.round((parseInt(product.original.replace(/[^\d]/g, '')) - parseInt(product.price.replace(/[^\d]/g, ''))) / parseInt(product.original.replace(/[^\d]/g, '')) * 100) : 0;
+                    
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-gray-50 rounded-xl overflow-hidden card-hover fade-in';
+                    productCard.style.animationDelay = `${index * 0.1}s`;
+                    productCard.innerHTML = `
+                        <div class="relative">
+                            ${discount > 0 ? `
+                                <div class="absolute top-3 left-3 z-10">
+                                    <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                        -${discount}%
+                                    </span>
+                                </div>
+                            ` : ''}
+                            <div class="h-32 category-${category.color} flex items-center justify-center">
+                                <span class="text-4xl text-white">${category.icon}</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800 mb-2 line-clamp-2">${product.name}</h4>
+                            <p class="text-gray-600 text-xs mb-3 line-clamp-2">${product.description}</p>
+                            <div class="flex items-center space-x-2 mb-3">
+                                <span class="font-bold text-orange-600">${product.price}</span>
+                                ${product.original ? `<span class="text-gray-400 line-through text-sm">${product.original}</span>` : ''}
+                            </div>
+                            <button onclick="buyNow('${product.link}')" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2 rounded-lg font-medium btn-animated text-sm">
+                                🛒 Mua Ngay
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(productCard);
+                });
+            }
+            
+            // Show modal
+            document.getElementById('categoryModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentCategoryId = null;
+        }
+
+        // Flash Sale Timer
+        function startFlashSaleTimer() {
+            const { flashSales } = loadDataFromStorage();
+            if (flashSales.length === 0) return;
+            
+            // Use the first flash sale's time for demo
+            const endTime = flashSales[0].time;
+            if (!endTime) return;
+            
+            // Create end time for today
+            const today = new Date();
+            const [hours, minutes] = endTime.split(':');
+            const endDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(hours), parseInt(minutes));
+            
+            // If time has passed, set for tomorrow
+            if (endDateTime < new Date()) {
+                endDateTime.setDate(endDateTime.getDate() + 1);
+            }
+            
+            flashSaleTimer = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = endDateTime.getTime() - now;
+                
+                if (distance < 0) {
+                    clearInterval(flashSaleTimer);
+                    document.getElementById('countdown').textContent = 'Đã kết thúc';
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Utility Functions
+        function buyNow(link) {
+            if (link && link.startsWith('http')) {
+                window.open(link, '_blank');
+                showNotification('🛒 Đang chuyển đến Shopee...', 'success');
+            } else {
+                showNotification('⚠️ Link sản phẩm không hợp lệ!', 'warning');
+            }
+        }
+
+        function copyVoucher(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification(`🎫 Đã copy mã voucher: ${code}`, 'success');
+            }).catch(() => {
+                showNotification('❌ Không thể copy mã voucher!', 'error');
+            });
+        }
+
+        function openAdmin() {
+            // Try to open admin in same directory
+            window.open('admin.html', '_blank');
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg z-50 notification max-w-sm`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <span class="flex-shrink-0">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                    <span class="flex-1">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-white hover:text-gray-200">
+                        ✕
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => {
+                        if (document.body.contains(notification)) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('categoryModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCategoryModal();
+            }
+        });
+
+        // Initialize page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+        // Handle smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9743271d01a9e885',t:'MTc1NjA0MTY4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
