@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopeeDeals Admin Panel - GitHub Sync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg { 
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); 
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .btn-animated {
+            transition: all 0.3s ease;
+        }
+        .btn-animated:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .notification {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal-enter {
+            animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalSlideIn {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.8) translateY(50px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(.33);
+            }
+            80%, 100% {
+                opacity: 0;
+            }
+        }
+
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-icon {
+            margin: 0 auto;
+        }
+
+        .content-area {
+            transition: all 0.3s ease;
+        }
+
+        .content-area.expanded {
+            margin-left: 80px;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stats-card.orange {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        }
+
+        .stats-card.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stats-card.red {
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        }
+
+        .stats-card.yellow {
+            background: linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%);
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .github-connected {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .github-disconnected {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center gradient-bg">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 fade-in">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+                    <span class="text-4xl">⚙️</span>
+                    <div class="absolute inset-0 rounded-full bg-purple-500 opacity-20 pulse-ring"></div>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">ShopeeDeals Admin</h1>
+                <p class="text-gray-600">Quản lý website với GitHub Sync</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="relative">
+                    <input type="text" id="adminUsername" placeholder="Tên đăng nhập" class="w-full border-2 border-gray-200 rounded-xl px-4 py-4 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <span class="text-gray-400">👤</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <input type="password" id="adminPassword" placeholder="Mật khẩu" class="w-full border-2 border-gray-200 rounded-xl px-4 py-4 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <span class="text-gray-400">🔒</span>
+                    </div>
+                </div>
+                <button onclick="adminLogin()" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-4 rounded-xl font-semibold btn-animated text-lg">
+                    🚀 Đăng Nhập
+                </button>
+            </div>
+            
+            <div class="mt-8 p-4 bg-blue-50 rounded-xl text-sm text-blue-700">
+                <div class="flex items-center mb-2">
+                    <span class="text-blue-500 mr-2">💡</span>
+                    <strong>Thông tin đăng nhập demo:</strong>
+                </div>
+                <div class="ml-6 space-y-1">
+                    <div>Tên đăng nhập: <code class="bg-blue-100 px-2 py-1 rounded">admin</code></div>
+                    <div>Mật khẩu: <code class="bg-blue-100 px-2 py-1 rounded">123456</code></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Settings Modal -->
+    <div id="githubModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl max-w-2xl w-full modal-enter">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center">
+                                <span class="text-white text-2xl">🐙</span>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">Cài Đặt GitHub</h3>
+                                <p class="text-gray-600">Kết nối với repository để đồng bộ dữ liệu</p>
+                            </div>
+                        </div>
+                        <button onclick="closeGitHubModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Personal Access Token *</label>
+                            <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            <p class="text-xs text-gray-500 mt-1">
+                                <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-500 hover:underline">
+                                    🔗 Tạo token tại đây
+                                </a> - Cần quyền: repo, contents
+                            </p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Repository Owner</label>
+                                <input type="text" id="githubOwner" value="amone18emer" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Repository Name</label>
+                                <input type="text" id="githubRepo" value="sansalemoishopee" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Branch</label>
+                            <input type="text" id="githubBranch" value="main" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+                        <div class="flex space-x-4">
+                            <button onclick="testGitHubConnection()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold btn-animated">
+                                🔍 Test Kết Nối
+                            </button>
+                            <button onclick="saveGitHubSettings()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold btn-animated">
+                                💾 Lưu Cài Đặt
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-yellow-50 rounded-xl">
+                        <h4 class="font-bold text-yellow-800 mb-2">📋 Hướng Dẫn Tạo GitHub Token:</h4>
+                        <ol class="text-sm text-yellow-700 space-y-1 list-decimal list-inside">
+                            <li>Vào <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-600 hover:underline">GitHub Settings → Developer settings → Personal access tokens</a></li>
+                            <li>Click "Generate new token (classic)"</li>
+                            <li>Chọn quyền: <code class="bg-yellow-100 px-1 rounded">repo</code> và <code class="bg-yellow-100 px-1 rounded">contents</code></li>
+                            <li>Copy token và paste vào ô trên</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden min-h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center sidebar-icon">
+                        <span class="text-purple-600 font-bold text-xl">⚙️</span>
+                    </div>
+                    <div class="sidebar-text">
+                        <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
+                        <p class="text-sm text-gray-500">ShopeeDeals</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="mt-6">
+                <div class="px-4 space-y-2">
+                    <button onclick="showTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors bg-purple-50 text-purple-600">
+                        <span class="text-xl sidebar-icon">📊</span>
+                        <span class="sidebar-text font-medium">Dashboard</span>
+                    </button>
+                    <button onclick="showTab('products')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors text-gray-600">
+                        <span class="text-xl sidebar-icon">🛍️</span>
+                        <span class="sidebar-text font-medium">Sản Phẩm</span>
+                    </button>
+                    <button onclick="showTab('categories')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors text-gray-600">
+                        <span class="text-xl sidebar-icon">🏪</span>
+                        <span class="sidebar-text font-medium">Danh Mục</span>
+                    </button>
+                    <button onclick="showTab('vouchers')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors text-gray-600">
+                        <span class="text-xl sidebar-icon">🎫</span>
+                        <span class="sidebar-text font-medium">Voucher</span>
+                    </button>
+                    <button onclick="showTab('flashsales')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors text-gray-600">
+                        <span class="text-xl sidebar-icon">🔥</span>
+                        <span class="sidebar-text font-medium">Flash Sale</span>
+                    </button>
+                    <button onclick="showTab('categoryproducts')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors text-gray-600">
+                        <span class="text-xl sidebar-icon">📦</span>
+                        <span class="sidebar-text font-medium">Sản Phẩm Theo Danh Mục</span>
+                    </button>
+                    <button onclick="showTab('backup')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors text-gray-600">
+                        <span class="text-xl sidebar-icon">💾</span>
+                        <span class="sidebar-text font-medium">Backup</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="absolute bottom-4 left-4 right-4">
+                <button onclick="toggleSidebar()" class="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    <span id="toggleIcon">◀</span>
+                    <span class="sidebar-text text-sm">Thu gọn</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="content-area ml-64">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard</h2>
+                            <p class="text-gray-600">Quản lý website ShopeeDeals với GitHub Sync</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div id="githubStatus" class="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium github-disconnected text-white">
+                                <span>🐙</span>
+                                <span>GitHub: Chưa kết nối</span>
+                            </div>
+                            <button onclick="syncToGitHub()" class="flex items-center space-x-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors btn-animated">
+                                <span>🚀</span>
+                                <span>Sync GitHub</span>
+                            </button>
+                            <button onclick="openMainSite()" class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors btn-animated">
+                                <span>🌐</span>
+                                <span>Xem Website</span>
+                            </button>
+                            <button onclick="showGitHubSettings()" class="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors btn-animated">
+                                <span>⚙️</span>
+                                <span>GitHub</span>
+                            </button>
+                            <button onclick="adminLogout()" class="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors btn-animated">
+                                <span>🚪</span>
+                                <span>Đăng Xuất</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-6">
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="tab-content">
+                    <!-- GitHub Status Card -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🐙 Trạng Thái GitHub</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <div id="connectionIndicator" class="w-4 h-4 bg-red-500 rounded-full"></div>
+                                    <span id="connectionText" class="font-medium text-gray-800">Chưa kết nối GitHub</span>
+                                </div>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p>📁 Repository: <span id="repoInfo">Chưa cấu hình</span></p>
+                                    <p>🌿 Branch: <span id="branchInfo">Chưa cấu hình</span></p>
+                                    <p>🕒 Lần sync cuối: <span id="lastSync">Chưa có</span></p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-3">
+                                <button onclick="showGitHubSettings()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium btn-animated">
+                                    ⚙️ Cấu Hình GitHub
+                                </button>
+                                <button onclick="syncToGitHub()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium btn-animated" disabled>
+                                    🚀 Đồng Bộ Ngay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stats-card text-white rounded-2xl p-6 card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-white text-opacity-80 text-sm font-medium">Sản Phẩm</p>
+                                    <p id="productCount" class="text-3xl font-bold">0</p>
+                                    <p class="text-white text-opacity-60 text-xs mt-1">Tổng sản phẩm</p>
+                                </div>
+                                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <span class="text-2xl">🛍️</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-card orange text-white rounded-2xl p-6 card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-white text-opacity-80 text-sm font-medium">Danh Mục</p>
+                                    <p id="categoryCount" class="text-3xl font-bold">0</p>
+                                    <p class="text-white text-opacity-60 text-xs mt-1">Danh mục sản phẩm</p>
+                                </div>
+                                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <span class="text-2xl">🏪</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-card green text-white rounded-2xl p-6 card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-white text-opacity-80 text-sm font-medium">Voucher</p>
+                                    <p id="voucherCount" class="text-3xl font-bold">0</p>
+                                    <p class="text-white text-opacity-60 text-xs mt-1">Mã giảm giá</p>
+                                </div>
+                                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <span class="text-2xl">🎫</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-card red text-white rounded-2xl p-6 card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-white text-opacity-80 text-sm font-medium">Flash Sale</p>
+                                    <p id="flashSaleCount" class="text-3xl font-bold">0</p>
+                                    <p class="text-white text-opacity-60 text-xs mt-1">Khuyến mãi hot</p>
+                                </div>
+                                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <span class="text-2xl">🔥</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🚀 Thao Tác Nhanh</h3>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <button onclick="showTab('products')" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors card-hover">
+                                <span class="text-3xl mb-2">➕</span>
+                                <span class="font-medium text-gray-800">Thêm Sản Phẩm</span>
+                            </button>
+                            <button onclick="showTab('categories')" class="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors card-hover">
+                                <span class="text-3xl mb-2">🏪</span>
+                                <span class="font-medium text-gray-800">Tạo Danh Mục</span>
+                            </button>
+                            <button onclick="showTab('vouchers')" class="flex flex-col items-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-colors card-hover">
+                                <span class="text-3xl mb-2">🎫</span>
+                                <span class="font-medium text-gray-800">Tạo Voucher</span>
+                            </button>
+                            <button onclick="showTab('flashsales')" class="flex flex-col items-center p-4 bg-red-50 hover:bg-red-100 rounded-xl transition-colors card-hover">
+                                <span class="text-3xl mb-2">🔥</span>
+                                <span class="font-medium text-gray-800">Flash Sale</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">📈 Hoạt Động Gần Đây</h3>
+                        <div id="recentActivity" class="space-y-4">
+                            <!-- Activity items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div id="productsTab" class="tab-content hidden">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">➕ Thêm Sản Phẩm Mới</h3>
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên sản phẩm *</label>
+                                <input type="text" id="productName" placeholder="VD: Áo thun nam cao cấp" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giá bán *</label>
+                                <input type="text" id="productPrice" placeholder="VD: 299,000đ" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giá gốc</label>
+                                <input type="text" id="productOriginalPrice" placeholder="VD: 599,000đ" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Link affiliate Shopee *</label>
+                                <input type="url" id="productLink" placeholder="https://shopee.vn/..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả sản phẩm</label>
+                            <textarea id="productDescription" placeholder="Mô tả chi tiết về sản phẩm..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-32"></textarea>
+                        </div>
+                        <button onclick="addProduct()" class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold btn-animated">
+                            ✨ Thêm Sản Phẩm
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">📋 Danh Sách Sản Phẩm</h3>
+                        <div id="productsList" class="space-y-4">
+                            <!-- Products will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Tab -->
+                <div id="categoriesTab" class="tab-content hidden">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🏪 Thêm Danh Mục Mới</h3>
+                        <div class="grid md:grid-cols-3 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên danh mục *</label>
+                                <input type="text" id="categoryName" placeholder="VD: Thời Trang" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Icon (emoji) *</label>
+                                <input type="text" id="categoryIcon" placeholder="VD: 👕" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Màu nền *</label>
+                                <select id="categoryColor" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                    <option value="">Chọn màu nền</option>
+                                    <option value="orange">🟠 Cam</option>
+                                    <option value="blue">🔵 Xanh dương</option>
+                                    <option value="green">🟢 Xanh lá</option>
+                                    <option value="pink">🩷 Hồng</option>
+                                    <option value="purple">🟣 Tím</option>
+                                    <option value="yellow">🟡 Vàng</option>
+                                    <option value="red">🔴 Đỏ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả danh mục</label>
+                            <textarea id="categoryDescription" placeholder="Mô tả về danh mục sản phẩm..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-24"></textarea>
+                        </div>
+                        <button onclick="addCategory()" class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold btn-animated">
+                            🏪 Tạo Danh Mục
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">📂 Danh Sách Danh Mục</h3>
+                        <div id="categoriesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Categories will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vouchers Tab -->
+                <div id="vouchersTab" class="tab-content hidden">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🎫 Tạo Voucher Mới</h3>
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Mã voucher *</label>
+                                <input type="text" id="voucherCode" placeholder="VD: FREESHIP50" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giảm giá *</label>
+                                <input type="text" id="voucherDiscount" placeholder="VD: 50k" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Điều kiện áp dụng *</label>
+                                <input type="text" id="voucherCondition" placeholder="VD: Đơn từ 200k" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày hết hạn *</label>
+                                <input type="date" id="voucherExpiry" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                        <button onclick="addVoucher()" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-8 py-3 rounded-xl font-semibold btn-animated">
+                            🎫 Tạo Voucher
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🎟️ Danh Sách Voucher</h3>
+                        <div id="vouchersList" class="space-y-4">
+                            <!-- Vouchers will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flash Sales Tab -->
+                <div id="flashsalesTab" class="tab-content hidden">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🔥 Tạo Flash Sale Mới</h3>
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên sản phẩm *</label>
+                                <input type="text" id="flashSaleProduct" placeholder="VD: Áo thun premium" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giá flash sale *</label>
+                                <input type="text" id="flashSalePrice" placeholder="VD: 199k" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giá gốc *</label>
+                                <input type="text" id="flashSaleOriginal" placeholder="VD: 399k" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Link Shopee *</label>
+                                <input type="url" id="flashSaleLink" placeholder="https://shopee.vn/..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Thời gian kết thúc *</label>
+                                <input type="time" id="flashSaleTime" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Số lượng còn lại *</label>
+                                <input type="number" id="flashSaleQuantity" placeholder="VD: 50" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                        <button onclick="addFlashSale()" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-3 rounded-xl font-semibold btn-animated">
+                            🔥 Tạo Flash Sale
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">⚡ Danh Sách Flash Sale</h3>
+                        <div id="flashSalesList" class="space-y-4">
+                            <!-- Flash sales will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Products Tab -->
+                <div id="categoryproductsTab" class="tab-content hidden">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">📦 Thêm Sản Phẩm Vào Danh Mục</h3>
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Chọn danh mục *</label>
+                                <select id="categoryProductCategory" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                    <option value="">Chọn danh mục</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên sản phẩm *</label>
+                                <input type="text" id="categoryProductName" placeholder="VD: Áo sơ mi nam" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giá bán *</label>
+                                <input type="text" id="categoryProductPrice" placeholder="VD: 199k" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Giá gốc</label>
+                                <input type="text" id="categoryProductOriginal" placeholder="VD: 299k" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Link Shopee *</label>
+                                <input type="url" id="categoryProductLink" placeholder="https://shopee.vn/..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả sản phẩm</label>
+                            <textarea id="categoryProductDescription" placeholder="Mô tả chi tiết về sản phẩm..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-24"></textarea>
+                        </div>
+                        <button onclick="addCategoryProduct()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold btn-animated">
+                            📦 Thêm Vào Danh Mục
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">📋 Sản Phẩm Theo Danh Mục</h3>
+                        <div id="categoryProductsList">
+                            <!-- Category products will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup Tab -->
+                <div id="backupTab" class="tab-content hidden">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-3xl">💾</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Backup Dữ Liệu</h3>
+                                <p class="text-gray-600 mb-6">Tải xuống toàn bộ dữ liệu website để lưu trữ an toàn</p>
+                                <button onclick="backupData()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                                    📥 Tải Backup
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-3xl">📤</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">Restore Dữ Liệu</h3>
+                                <p class="text-gray-600 mb-6">Khôi phục dữ liệu website từ file backup đã lưu</p>
+                                <input type="file" id="restoreFile" accept=".json" class="hidden" onchange="restoreData(this)">
+                                <button onclick="document.getElementById('restoreFile').click()" class="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold btn-animated">
+                                    📤 Chọn File Backup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">⚠️ Lưu Ý Quan Trọng</h3>
+                        <div class="space-y-4 text-gray-600">
+                            <div class="flex items-start space-x-3">
+                                <span class="text-blue-500 mt-1">💡</span>
+                                <p><strong>Backup thường xuyên:</strong> Nên backup dữ liệu ít nhất 1 tuần/lần để đảm bảo an toàn.</p>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <span class="text-yellow-500 mt-1">⚠️</span>
+                                <p><strong>Restore cẩn thận:</strong> Việc restore sẽ ghi đè toàn bộ dữ liệu hiện tại.</p>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <span class="text-green-500 mt-1">✅</span>
+                                <p><strong>Định dạng file:</strong> Chỉ chấp nhận file .json được tạo từ hệ thống này.</p>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <span class="text-purple-500 mt-1">🚀</span>
+                                <p><strong>GitHub Sync:</strong> Sau khi restore, nhớ đồng bộ lên GitHub để cập nhật website online.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoggedIn = false;
+        let productIdCounter = 1000;
+        let voucherIdCounter = 100;
+        let flashSaleIdCounter = 100;
+        let categoryIdCounter = 100;
+        let categoryProductIdCounter = 1000;
+        let sidebarCollapsed = false;
+        let githubSettings = {};
+
+        // GitHub API Functions
+        async function syncToGitHub() {
+            if (!githubSettings.token) {
+                showNotification('⚠️ Vui lòng cấu hình GitHub trước!', 'warning');
+                showGitHubSettings();
+                return;
+            }
+
+            const syncButton = document.querySelector('button[onclick="syncToGitHub()"]');
+            const originalText = syncButton.innerHTML;
+            syncButton.innerHTML = '<div class="loading-spinner"></div> Đang đồng bộ...';
+            syncButton.disabled = true;
+
+            try {
+                const data = loadDataFromStorage();
+                
+                // Create data.js content
+                const dataContent = `// ShopeeDeals Data - Auto generated by Admin Panel
+// Last updated: ${new Date().toISOString()}
+
+window.shopeeDealsData = ${JSON.stringify(data, null, 2)};
+
+// Initialize data if localStorage is empty
+if (!localStorage.getItem('shopeedeals_products')) {
+    localStorage.setItem('shopeedeals_products', JSON.stringify(window.shopeeDealsData.products || []));
+}
+if (!localStorage.getItem('shopeedeals_categories')) {
+    localStorage.setItem('shopeedeals_categories', JSON.stringify(window.shopeeDealsData.categories || []));
+}
+if (!localStorage.getItem('shopeedeals_vouchers')) {
+    localStorage.setItem('shopeedeals_vouchers', JSON.stringify(window.shopeeDealsData.vouchers || []));
+}
+if (!localStorage.getItem('shopeedeals_flashsales')) {
+    localStorage.setItem('shopeedeals_flashsales', JSON.stringify(window.shopeeDealsData.flashSales || []));
+}
+if (!localStorage.getItem('shopeedeals_categoryproducts')) {
+    localStorage.setItem('shopeedeals_categoryproducts', JSON.stringify(window.shopeeDealsData.categoryProducts || {}));
+}`;
+
+                // Get current file SHA (required for updates)
+                const getFileResponse = await fetch(`https://api.github.com/repos/${githubSettings.owner}/${githubSettings.repo}/contents/data.js`, {
+                    headers: {
+                        'Authorization': `token ${githubSettings.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let sha = null;
+                if (getFileResponse.ok) {
+                    const fileData = await getFileResponse.json();
+                    sha = fileData.sha;
+                }
+
+                // Update or create file
+                const updateResponse = await fetch(`https://api.github.com/repos/${githubSettings.owner}/${githubSettings.repo}/contents/data.js`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubSettings.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Update data.js - ${new Date().toLocaleString('vi-VN')}`,
+                        content: btoa(unescape(encodeURIComponent(dataContent))),
+                        sha: sha,
+                        branch: githubSettings.branch
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    localStorage.setItem('github_last_sync', new Date().toISOString());
+                    updateGitHubStatus();
+                    showNotification('🚀 Đồng bộ GitHub thành công! Website sẽ cập nhật trong vài phút.', 'success');
+                } else {
+                    const error = await updateResponse.json();
+                    throw new Error(error.message || 'GitHub API error');
+                }
+
+            } catch (error) {
+                console.error('GitHub sync error:', error);
+                showNotification(`❌ Lỗi đồng bộ GitHub: ${error.message}`, 'error');
+            } finally {
+                syncButton.innerHTML = originalText;
+                syncButton.disabled = false;
+            }
+        }
+
+        async function testGitHubConnection() {
+            const token = document.getElementById('githubToken').value.trim();
+            const owner = document.getElementById('githubOwner').value.trim();
+            const repo = document.getElementById('githubRepo').value.trim();
+
+            if (!token || !owner || !repo) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin!', 'warning');
+                return;
+            }
+
+            const testButton = document.querySelector('button[onclick="testGitHubConnection()"]');
+            const originalText = testButton.innerHTML;
+            testButton.innerHTML = '<div class="loading-spinner"></div> Đang test...';
+            testButton.disabled = true;
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const repoData = await response.json();
+                    showNotification(`✅ Kết nối thành công với ${repoData.full_name}!`, 'success');
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Repository not found');
+                }
+            } catch (error) {
+                showNotification(`❌ Lỗi kết nối: ${error.message}`, 'error');
+            } finally {
+                testButton.innerHTML = originalText;
+                testButton.disabled = false;
+            }
+        }
+
+        function saveGitHubSettings() {
+            const token = document.getElementById('githubToken').value.trim();
+            const owner = document.getElementById('githubOwner').value.trim();
+            const repo = document.getElementById('githubRepo').value.trim();
+            const branch = document.getElementById('githubBranch').value.trim();
+
+            if (!token || !owner || !repo || !branch) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin!', 'warning');
+                return;
+            }
+
+            githubSettings = { token, owner, repo, branch };
+            localStorage.setItem('github_settings', JSON.stringify(githubSettings));
+            
+            updateGitHubStatus();
+            closeGitHubModal();
+            showNotification('💾 Đã lưu cài đặt GitHub thành công!', 'success');
+        }
+
+        function loadGitHubSettings() {
+            const saved = localStorage.getItem('github_settings');
+            if (saved) {
+                githubSettings = JSON.parse(saved);
+                document.getElementById('githubToken').value = githubSettings.token || '';
+                document.getElementById('githubOwner').value = githubSettings.owner || 'amone18emer';
+                document.getElementById('githubRepo').value = githubSettings.repo || 'sansalemoishopee';
+                document.getElementById('githubBranch').value = githubSettings.branch || 'main';
+            }
+            updateGitHubStatus();
+        }
+
+        function updateGitHubStatus() {
+            const statusDiv = document.getElementById('githubStatus');
+            const connectionIndicator = document.getElementById('connectionIndicator');
+            const connectionText = document.getElementById('connectionText');
+            const repoInfo = document.getElementById('repoInfo');
+            const branchInfo = document.getElementById('branchInfo');
+            const lastSync = document.getElementById('lastSync');
+            const syncButton = document.querySelector('button[onclick="syncToGitHub()"]');
+
+            if (githubSettings.token) {
+                statusDiv.className = statusDiv.className.replace('github-disconnected', 'github-connected');
+                statusDiv.innerHTML = '<span>🐙</span><span>GitHub: Đã kết nối</span>';
+                
+                connectionIndicator.className = 'w-4 h-4 bg-green-500 rounded-full';
+                connectionText.textContent = 'Đã kết nối GitHub';
+                repoInfo.textContent = `${githubSettings.owner}/${githubSettings.repo}`;
+                branchInfo.textContent = githubSettings.branch;
+                
+                const lastSyncTime = localStorage.getItem('github_last_sync');
+                if (lastSyncTime) {
+                    lastSync.textContent = new Date(lastSyncTime).toLocaleString('vi-VN');
+                } else {
+                    lastSync.textContent = 'Chưa đồng bộ lần nào';
+                }
+                
+                syncButton.disabled = false;
+            } else {
+                statusDiv.className = statusDiv.className.replace('github-connected', 'github-disconnected');
+                statusDiv.innerHTML = '<span>🐙</span><span>GitHub: Chưa kết nối</span>';
+                
+                connectionIndicator.className = 'w-4 h-4 bg-red-500 rounded-full';
+                connectionText.textContent = 'Chưa kết nối GitHub';
+                repoInfo.textContent = 'Chưa cấu hình';
+                branchInfo.textContent = 'Chưa cấu hình';
+                lastSync.textContent = 'Chưa có';
+                
+                syncButton.disabled = true;
+            }
+        }
+
+        function showGitHubSettings() {
+            document.getElementById('githubModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGitHubModal() {
+            document.getElementById('githubModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Login Functions
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+
+            if (username === 'admin' && password === '123456') {
+                isLoggedIn = true;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                loadDashboard();
+                loadGitHubSettings();
+                showNotification('🎉 Đăng nhập thành công! Chào mừng Admin', 'success');
+            } else {
+                const loginForm = document.querySelector('#loginScreen .bg-white');
+                loginForm.classList.add('shake');
+                setTimeout(() => loginForm.classList.remove('shake'), 500);
+                showNotification('❌ Sai tên đăng nhập hoặc mật khẩu!', 'error');
+            }
+        }
+
+        function adminLogout() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                isLoggedIn = false;
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('adminUsername').value = '';
+                document.getElementById('adminPassword').value = '';
+                showNotification('👋 Đã đăng xuất thành công!', 'info');
+            }
+        }
+
+        // Sidebar Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            sidebarCollapsed = !sidebarCollapsed;
+            
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+                toggleIcon.textContent = '▶';
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+                toggleIcon.textContent = '◀';
+            }
+        }
+
+        // Data Management
+        function loadDataFromStorage() {
+            return {
+                products: JSON.parse(localStorage.getItem('shopeedeals_products') || '[]'),
+                vouchers: JSON.parse(localStorage.getItem('shopeedeals_vouchers') || '[]'),
+                flashSales: JSON.parse(localStorage.getItem('shopeedeals_flashsales') || '[]'),
+                categories: JSON.parse(localStorage.getItem('shopeedeals_categories') || '[]'),
+                categoryProducts: JSON.parse(localStorage.getItem('shopeedeals_categoryproducts') || '{}')
+            };
+        }
+
+        function saveDataToStorage(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+            updateStats();
+            updateRecentActivity();
+        }
+
+        function openMainSite() {
+            window.open('https://amone18emer.github.io/sansalemoishopee/', '_blank');
+        }
+
+        // Dashboard Functions
+        function loadDashboard() {
+            updateStats();
+            loadProducts();
+            loadCategories();
+            loadVouchers();
+            loadFlashSales();
+            loadCategoryProducts();
+            updateRecentActivity();
+            loadCategoryOptions();
+        }
+
+        function updateStats() {
+            const data = loadDataFromStorage();
+            document.getElementById('productCount').textContent = data.products.length;
+            document.getElementById('categoryCount').textContent = data.categories.length;
+            document.getElementById('voucherCount').textContent = data.vouchers.length;
+            document.getElementById('flashSaleCount').textContent = data.flashSales.length;
+        }
+
+        function updateRecentActivity() {
+            const activities = [
+                { icon: '🛍️', text: 'Cập nhật danh sách sản phẩm', time: '2 phút trước' },
+                { icon: '🎫', text: 'Thêm voucher FREESHIP50', time: '15 phút trước' },
+                { icon: '🔥', text: 'Tạo flash sale mới', time: '1 giờ trước' },
+                { icon: '🏪', text: 'Thêm danh mục Thời Trang', time: '2 giờ trước' },
+                { icon: '🚀', text: 'Đồng bộ dữ liệu lên GitHub', time: '1 ngày trước' }
+            ];
+
+            const activityContainer = document.getElementById('recentActivity');
+            activityContainer.innerHTML = '';
+
+            activities.forEach(activity => {
+                const activityItem = document.createElement('div');
+                activityItem.className = 'flex items-center space-x-4 p-4 bg-gray-50 rounded-xl';
+                activityItem.innerHTML = `
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="text-xl">${activity.icon}</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800">${activity.text}</p>
+                        <p class="text-sm text-gray-500">${activity.time}</p>
+                    </div>
+                `;
+                activityContainer.appendChild(activityItem);
+            });
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'products': 'Quản Lý Sản Phẩm',
+                'categories': 'Quản Lý Danh Mục',
+                'vouchers': 'Quản Lý Voucher',
+                'flashsales': 'Quản Lý Flash Sale',
+                'categoryproducts': 'Sản Phẩm Theo Danh Mục',
+                'backup': 'Backup & Restore'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabName] || 'Dashboard';
+
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active state from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-50', 'text-purple-600');
+                btn.classList.add('text-gray-600');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            
+            // Add active state to selected nav button
+            event.target.classList.remove('text-gray-600');
+            event.target.classList.add('bg-purple-50', 'text-purple-600');
+
+            // Load specific data for the tab
+            if (tabName === 'categoryproducts') {
+                loadCategoryOptions();
+            }
+        }
+
+        // Product Management
+        function loadProducts() {
+            const { products } = loadDataFromStorage();
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsList.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">📦</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Chưa có sản phẩm nào</h3>
+                        <p class="text-gray-500">Hãy thêm sản phẩm đầu tiên của bạn!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            products.forEach(product => {
+                const discount = product.originalPrice ? 
+                    Math.round((parseInt(product.originalPrice.replace(/[^\d]/g, '')) - parseInt(product.price.replace(/[^\d]/g, ''))) / parseInt(product.originalPrice.replace(/[^\d]/g, '')) * 100) : 0;
+
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-gray-50 rounded-xl p-6 card-hover';
+                productCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <h4 class="font-bold text-gray-800 text-lg">${product.name}</h4>
+                                ${discount > 0 ? `<span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-bold">-${discount}%</span>` : ''}
+                            </div>
+                            <p class="text-gray-600 mb-3">${product.description}</p>
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="text-xl font-bold text-orange-600">${product.price}</span>
+                                ${product.originalPrice ? `<span class="text-gray-400 line-through">${product.originalPrice}</span>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <span>🔗</span>
+                                <span class="truncate max-w-xs">${product.link}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 ml-4">
+                            <button onclick="editProduct(${product.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                ✏️ Sửa
+                            </button>
+                            <button onclick="deleteProduct(${product.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                🗑️ Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productsList.appendChild(productCard);
+            });
+        }
+
+        function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const price = document.getElementById('productPrice').value.trim();
+            const originalPrice = document.getElementById('productOriginalPrice').value.trim();
+            const link = document.getElementById('productLink').value.trim();
+            const description = document.getElementById('productDescription').value.trim();
+
+            if (!name || !price || !link) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin bắt buộc!', 'warning');
+                return;
+            }
+
+            const { products } = loadDataFromStorage();
+            const newProduct = {
+                id: ++productIdCounter,
+                name,
+                price,
+                originalPrice,
+                link,
+                description: description || 'Sản phẩm chất lượng cao',
+                image: '🛍️'
+            };
+
+            products.push(newProduct);
+            saveDataToStorage('shopeedeals_products', products);
+            
+            // Clear form
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productOriginalPrice').value = '';
+            document.getElementById('productLink').value = '';
+            document.getElementById('productDescription').value = '';
+
+            loadProducts();
+            showNotification('🎉 Đã thêm sản phẩm thành công! Nhớ đồng bộ lên GitHub.', 'success');
+        }
+
+        function editProduct(id) {
+            const { products } = loadDataFromStorage();
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            // Fill form with product data
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productOriginalPrice').value = product.originalPrice || '';
+            document.getElementById('productLink').value = product.link;
+            document.getElementById('productDescription').value = product.description;
+
+            // Delete the old product
+            deleteProduct(id, false);
+            
+            showNotification('📝 Sản phẩm đã được tải vào form để chỉnh sửa', 'info');
+        }
+
+        function deleteProduct(id, showConfirm = true) {
+            if (showConfirm && !confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
+            
+            const { products } = loadDataFromStorage();
+            const updatedProducts = products.filter(p => p.id !== id);
+            saveDataToStorage('shopeedeals_products', updatedProducts);
+            loadProducts();
+            
+            if (showConfirm) {
+                showNotification('🗑️ Đã xóa sản phẩm thành công! Nhớ đồng bộ lên GitHub.', 'success');
+            }
+        }
+
+        // Category Management
+        function loadCategories() {
+            const { categories } = loadDataFromStorage();
+            const categoriesList = document.getElementById('categoriesList');
+            categoriesList.innerHTML = '';
+            
+            if (categories.length === 0) {
+                categoriesList.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-6xl mb-4">🏪</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Chưa có danh mục nào</h3>
+                        <p class="text-gray-500">Hãy tạo danh mục đầu tiên của bạn!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            categories.forEach(category => {
+                const { categoryProducts } = loadDataFromStorage();
+                const productsCount = (categoryProducts[category.id] || []).length;
+
+                const categoryCard = document.createElement('div');
+                categoryCard.className = `bg-${category.color}-50 border-2 border-${category.color}-200 rounded-xl p-6 text-center relative card-hover`;
+                categoryCard.innerHTML = `
+                    <div class="text-5xl mb-3">${category.icon}</div>
+                    <h4 class="font-bold text-gray-800 mb-2 text-lg">${category.name}</h4>
+                    <p class="text-gray-600 text-sm mb-3">${category.description}</p>
+                    <div class="text-xs text-gray-500 mb-4">
+                        📦 ${productsCount} sản phẩm
+                    </div>
+                    <div class="flex justify-center space-x-2">
+                        <button onclick="editCategory(${category.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors">
+                            ✏️ Sửa
+                        </button>
+                        <button onclick="deleteCategory(${category.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors">
+                            🗑️ Xóa
+                        </button>
+                    </div>
+                `;
+                categoriesList.appendChild(categoryCard);
+            });
+        }
+
+        function loadCategoryOptions() {
+            const { categories } = loadDataFromStorage();
+            const select = document.getElementById('categoryProductCategory');
+            select.innerHTML = '<option value="">Chọn danh mục</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = `${category.icon} ${category.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            const icon = document.getElementById('categoryIcon').value.trim();
+            const color = document.getElementById('categoryColor').value;
+            const description = document.getElementById('categoryDescription').value.trim();
+
+            if (!name || !icon || !color) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin bắt buộc!', 'warning');
+                return;
+            }
+
+            const { categories } = loadDataFromStorage();
+            const { categoryProducts } = loadDataFromStorage();
+            
+            const newCategory = {
+                id: ++categoryIdCounter,
+                name,
+                icon,
+                color,
+                description: description || 'Danh mục sản phẩm mới'
+            };
+
+            categories.push(newCategory);
+            categoryProducts[newCategory.id] = [];
+            
+            saveDataToStorage('shopeedeals_categories', categories);
+            saveDataToStorage('shopeedeals_categoryproducts', categoryProducts);
+            
+            // Clear form
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryIcon').value = '';
+            document.getElementById('categoryColor').value = '';
+            document.getElementById('categoryDescription').value = '';
+
+            loadCategories();
+            loadCategoryOptions();
+            showNotification('🏪 Đã tạo danh mục thành công! Nhớ đồng bộ lên GitHub.', 'success');
+        }
+
+        function editCategory(id) {
+            const { categories } = loadDataFromStorage();
+            const category = categories.find(c => c.id === id);
+            if (!category) return;
+
+            // Fill form with category data
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryIcon').value = category.icon;
+            document.getElementById('categoryColor').value = category.color;
+            document.getElementById('categoryDescription').value = category.description;
+
+            // Delete the old category
+            deleteCategory(id, false);
+            
+            showNotification('📝 Danh mục đã được tải vào form để chỉnh sửa', 'info');
+        }
+
+        function deleteCategory(id, showConfirm = true) {
+            if (showConfirm && !confirm('Bạn có chắc muốn xóa danh mục này? Tất cả sản phẩm trong danh mục cũng sẽ bị xóa.')) return;
+            
+            const { categories } = loadDataFromStorage();
+            const { categoryProducts } = loadDataFromStorage();
+            
+            const updatedCategories = categories.filter(c => c.id !== id);
+            delete categoryProducts[id];
+            
+            saveDataToStorage('shopeedeals_categories', updatedCategories);
+            saveDataToStorage('shopeedeals_categoryproducts', categoryProducts);
+            
+            loadCategories();
+            loadCategoryOptions();
+            loadCategoryProducts();
+            
+            if (showConfirm) {
+                showNotification('🗑️ Đã xóa danh mục thành công! Nhớ đồng bộ lên GitHub.', 'success');
+            }
+        }
+
+        // Voucher Management
+        function loadVouchers() {
+            const { vouchers } = loadDataFromStorage();
+            const vouchersList = document.getElementById('vouchersList');
+            vouchersList.innerHTML = '';
+            
+            if (vouchers.length === 0) {
+                vouchersList.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">🎫</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Chưa có voucher nào</h3>
+                        <p class="text-gray-500">Hãy tạo voucher đầu tiên của bạn!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            vouchers.forEach(voucher => {
+                const voucherCard = document.createElement('div');
+                voucherCard.className = 'bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-dashed border-yellow-300 rounded-xl p-6 card-hover';
+                voucherCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="bg-yellow-500 text-white px-4 py-2 rounded-full font-bold">${voucher.code}</span>
+                                <span class="text-yellow-600 font-bold text-lg">Giảm ${voucher.discount}</span>
+                            </div>
+                            <div class="space-y-2 text-gray-600">
+                                <p class="flex items-center space-x-2">
+                                    <span>📋</span>
+                                    <span>${voucher.condition}</span>
+                                </p>
+                                <p class="flex items-center space-x-2">
+                                    <span>⏰</span>
+                                    <span>Hết hạn: ${voucher.expiry}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 ml-4">
+                            <button onclick="editVoucher(${voucher.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                ✏️ Sửa
+                            </button>
+                            <button onclick="deleteVoucher(${voucher.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                🗑️ Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+                vouchersList.appendChild(voucherCard);
+            });
+        }
+
+        function addVoucher() {
+            const code = document.getElementById('voucherCode').value.trim();
+            const discount = document.getElementById('voucherDiscount').value.trim();
+            const condition = document.getElementById('voucherCondition').value.trim();
+            const expiry = document.getElementById('voucherExpiry').value;
+
+            if (!code || !discount || !condition || !expiry) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin voucher!', 'warning');
+                return;
+            }
+
+            const { vouchers } = loadDataFromStorage();
+            const newVoucher = {
+                id: ++voucherIdCounter,
+                code: code.toUpperCase(),
+                discount,
+                condition,
+                expiry
+            };
+
+            vouchers.push(newVoucher);
+            saveDataToStorage('shopeedeals_vouchers', vouchers);
+            
+            // Clear form
+            document.getElementById('voucherCode').value = '';
+            document.getElementById('voucherDiscount').value = '';
+            document.getElementById('voucherCondition').value = '';
+            document.getElementById('voucherExpiry').value = '';
+
+            loadVouchers();
+            showNotification('🎫 Đã tạo voucher thành công! Nhớ đồng bộ lên GitHub.', 'success');
+        }
+
+        function editVoucher(id) {
+            const { vouchers } = loadDataFromStorage();
+            const voucher = vouchers.find(v => v.id === id);
+            if (!voucher) return;
+
+            // Fill form with voucher data
+            document.getElementById('voucherCode').value = voucher.code;
+            document.getElementById('voucherDiscount').value = voucher.discount;
+            document.getElementById('voucherCondition').value = voucher.condition;
+            document.getElementById('voucherExpiry').value = voucher.expiry;
+
+            // Delete the old voucher
+            deleteVoucher(id, false);
+            
+            showNotification('📝 Voucher đã được tải vào form để chỉnh sửa', 'info');
+        }
+
+        function deleteVoucher(id, showConfirm = true) {
+            if (showConfirm && !confirm('Bạn có chắc muốn xóa voucher này?')) return;
+            
+            const { vouchers } = loadDataFromStorage();
+            const updatedVouchers = vouchers.filter(v => v.id !== id);
+            saveDataToStorage('shopeedeals_vouchers', updatedVouchers);
+            loadVouchers();
+            
+            if (showConfirm) {
+                showNotification('🗑️ Đã xóa voucher thành công! Nhớ đồng bộ lên GitHub.', 'success');
+            }
+        }
+
+        // Flash Sale Management
+        function loadFlashSales() {
+            const { flashSales } = loadDataFromStorage();
+            const flashSalesList = document.getElementById('flashSalesList');
+            flashSalesList.innerHTML = '';
+            
+            if (flashSales.length === 0) {
+                flashSalesList.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">🔥</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Chưa có flash sale nào</h3>
+                        <p class="text-gray-500">Hãy tạo flash sale đầu tiên của bạn!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            flashSales.forEach(sale => {
+                const discount = Math.round((parseInt(sale.original.replace(/[^\d]/g, '')) - parseInt(sale.price.replace(/[^\d]/g, ''))) / parseInt(sale.original.replace(/[^\d]/g, '')) * 100);
+                
+                const saleCard = document.createElement('div');
+                saleCard.className = 'bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl p-6 card-hover';
+                saleCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">-${discount}%</span>
+                                <h4 class="font-bold text-gray-800 text-lg">${sale.product}</h4>
+                            </div>
+                            <div class="flex items-center space-x-4 mb-3">
+                                <span class="text-red-600 font-bold text-xl">${sale.price}</span>
+                                <span class="text-gray-400 line-through">${sale.original}</span>
+                            </div>
+                            <div class="space-y-2 text-gray-600 text-sm">
+                                <p class="flex items-center space-x-2">
+                                    <span>⏰</span>
+                                    <span>Kết thúc lúc ${sale.time}</span>
+                                </p>
+                                <p class="flex items-center space-x-2">
+                                    <span>📦</span>
+                                    <span>Còn lại: ${sale.quantity} sản phẩm</span>
+                                </p>
+                                <p class="flex items-center space-x-2">
+                                    <span>🔗</span>
+                                    <span class="truncate max-w-xs">${sale.link}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 ml-4">
+                            <button onclick="editFlashSale(${sale.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                ✏️ Sửa
+                            </button>
+                            <button onclick="deleteFlashSale(${sale.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                🗑️ Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+                flashSalesList.appendChild(saleCard);
+            });
+        }
+
+        function addFlashSale() {
+            const product = document.getElementById('flashSaleProduct').value.trim();
+            const price = document.getElementById('flashSalePrice').value.trim();
+            const original = document.getElementById('flashSaleOriginal').value.trim();
+            const link = document.getElementById('flashSaleLink').value.trim();
+            const time = document.getElementById('flashSaleTime').value;
+            const quantity = document.getElementById('flashSaleQuantity').value;
+
+            if (!product || !price || !original || !link || !time || !quantity) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin flash sale!', 'warning');
+                return;
+            }
+
+            const { flashSales } = loadDataFromStorage();
+            const newFlashSale = {
+                id: ++flashSaleIdCounter,
+                product,
+                price,
+                original,
+                link,
+                time,
+                quantity: parseInt(quantity)
+            };
+
+            flashSales.push(newFlashSale);
+            saveDataToStorage('shopeedeals_flashsales', flashSales);
+            
+            // Clear form
+            document.getElementById('flashSaleProduct').value = '';
+            document.getElementById('flashSalePrice').value = '';
+            document.getElementById('flashSaleOriginal').value = '';
+            document.getElementById('flashSaleLink').value = '';
+            document.getElementById('flashSaleTime').value = '';
+            document.getElementById('flashSaleQuantity').value = '';
+
+            loadFlashSales();
+            showNotification('🔥 Đã tạo flash sale thành công! Nhớ đồng bộ lên GitHub.', 'success');
+        }
+
+        function editFlashSale(id) {
+            const { flashSales } = loadDataFromStorage();
+            const sale = flashSales.find(s => s.id === id);
+            if (!sale) return;
+
+            // Fill form with flash sale data
+            document.getElementById('flashSaleProduct').value = sale.product;
+            document.getElementById('flashSalePrice').value = sale.price;
+            document.getElementById('flashSaleOriginal').value = sale.original;
+            document.getElementById('flashSaleLink').value = sale.link;
+            document.getElementById('flashSaleTime').value = sale.time;
+            document.getElementById('flashSaleQuantity').value = sale.quantity;
+
+            // Delete the old flash sale
+            deleteFlashSale(id, false);
+            
+            showNotification('📝 Flash sale đã được tải vào form để chỉnh sửa', 'info');
+        }
+
+        function deleteFlashSale(id, showConfirm = true) {
+            if (showConfirm && !confirm('Bạn có chắc muốn xóa flash sale này?')) return;
+            
+            const { flashSales } = loadDataFromStorage();
+            const updatedFlashSales = flashSales.filter(s => s.id !== id);
+            saveDataToStorage('shopeedeals_flashsales', updatedFlashSales);
+            loadFlashSales();
+            
+            if (showConfirm) {
+                showNotification('🗑️ Đã xóa flash sale thành công! Nhớ đồng bộ lên GitHub.', 'success');
+            }
+        }
+
+        // Category Products Management
+        function loadCategoryProducts() {
+            const { categories, categoryProducts } = loadDataFromStorage();
+            const container = document.getElementById('categoryProductsList');
+            container.innerHTML = '';
+
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">🏪</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Chưa có danh mục nào</h3>
+                        <p class="text-gray-500">Hãy tạo danh mục trước khi thêm sản phẩm!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            categories.forEach(category => {
+                const products = categoryProducts[category.id] || [];
+                
+                const categorySection = document.createElement('div');
+                categorySection.className = 'mb-8';
+                categorySection.innerHTML = `
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-${category.color}-100 rounded-lg flex items-center justify-center">
+                            <span class="text-2xl">${category.icon}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-800">${category.name}</h4>
+                            <p class="text-gray-600">${products.length} sản phẩm</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="category-${category.id}-products">
+                        ${products.length === 0 ? `
+                            <div class="col-span-full text-center py-8 bg-gray-50 rounded-xl">
+                                <div class="text-4xl mb-2">📦</div>
+                                <p class="text-gray-500">Chưa có sản phẩm nào trong danh mục này</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(categorySection);
+
+                // Load products for this category
+                const productsGrid = document.getElementById(`category-${category.id}-products`);
+                products.forEach(product => {
+                    const discount = product.original ? Math.round((parseInt(product.original.replace(/[^\d]/g, '')) - parseInt(product.price.replace(/[^\d]/g, ''))) / parseInt(product.original.replace(/[^\d]/g, '')) * 100) : 0;
+                    
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-white rounded-xl p-4 shadow-sm card-hover';
+                    productCard.innerHTML = `
+                        <div class="mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h5 class="font-bold text-gray-800">${product.name}</h5>
+                                ${discount > 0 ? `<span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-bold">-${discount}%</span>` : ''}
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">${product.description}</p>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="font-bold text-orange-600">${product.price}</span>
+                                ${product.original ? `<span class="text-gray-400 line-through text-sm">${product.original}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button onclick="editCategoryProduct(${category.id}, ${product.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                                ✏️ Sửa
+                            </button>
+                            <button onclick="deleteCategoryProduct(${category.id}, ${product.id})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
+                                🗑️ Xóa
+                            </button>
+                        </div>
+                    `;
+                    productsGrid.appendChild(productCard);
+                });
+            });
+        }
+
+        function addCategoryProduct() {
+            const categoryId = parseInt(document.getElementById('categoryProductCategory').value);
+            const name = document.getElementById('categoryProductName').value.trim();
+            const price = document.getElementById('categoryProductPrice').value.trim();
+            const original = document.getElementById('categoryProductOriginal').value.trim();
+            const link = document.getElementById('categoryProductLink').value.trim();
+            const description = document.getElementById('categoryProductDescription').value.trim();
+
+            if (!categoryId || !name || !price || !link) {
+                showNotification('⚠️ Vui lòng điền đầy đủ thông tin bắt buộc!', 'warning');
+                return;
+            }
+
+            const { categoryProducts } = loadDataFromStorage();
+            if (!categoryProducts[categoryId]) {
+                categoryProducts[categoryId] = [];
+            }
+
+            const newProduct = {
+                id: ++categoryProductIdCounter,
+                name,
+                price,
+                original,
+                link,
+                description: description || 'Sản phẩm chất lượng cao'
+            };
+
+            categoryProducts[categoryId].push(newProduct);
+            saveDataToStorage('shopeedeals_categoryproducts', categoryProducts);
+            
+            // Clear form
+            document.getElementById('categoryProductCategory').value = '';
+            document.getElementById('categoryProductName').value = '';
+            document.getElementById('categoryProductPrice').value = '';
+            document.getElementById('categoryProductOriginal').value = '';
+            document.getElementById('categoryProductLink').value = '';
+            document.getElementById('categoryProductDescription').value = '';
+
+            loadCategoryProducts();
+            showNotification('📦 Đã thêm sản phẩm vào danh mục thành công! Nhớ đồng bộ lên GitHub.', 'success');
+        }
+
+        function editCategoryProduct(categoryId, productId) {
+            const { categoryProducts } = loadDataFromStorage();
+            const products = categoryProducts[categoryId] || [];
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Fill form with product data
+            document.getElementById('categoryProductCategory').value = categoryId;
+            document.getElementById('categoryProductName').value = product.name;
+            document.getElementById('categoryProductPrice').value = product.price;
+            document.getElementById('categoryProductOriginal').value = product.original || '';
+            document.getElementById('categoryProductLink').value = product.link;
+            document.getElementById('categoryProductDescription').value = product.description;
+
+            // Delete the old product
+            deleteCategoryProduct(categoryId, productId, false);
+            
+            showNotification('📝 Sản phẩm đã được tải vào form để chỉnh sửa', 'info');
+        }
+
+        function deleteCategoryProduct(categoryId, productId, showConfirm = true) {
+            if (showConfirm && !confirm('Bạn có chắc muốn xóa sản phẩm này khỏi danh mục?')) return;
+            
+            const { categoryProducts } = loadDataFromStorage();
+            if (categoryProducts[categoryId]) {
+                categoryProducts[categoryId] = categoryProducts[categoryId].filter(p => p.id !== productId);
+                saveDataToStorage('shopeedeals_categoryproducts', categoryProducts);
+                loadCategoryProducts();
+                
+                if (showConfirm) {
+                    showNotification('🗑️ Đã xóa sản phẩm khỏi danh mục thành công! Nhớ đồng bộ lên GitHub.', 'success');
+                }
+            }
+        }
+
+        // Backup & Restore
+        function backupData() {
+            const data = loadDataFromStorage();
+            const backup = {
+                ...data,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `shopeedeals-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('💾 Backup đã được tải xuống thành công!', 'success');
+        }
+
+        function restoreData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    // Validate backup structure
+                    if (!backup.products || !backup.categories || !backup.vouchers || !backup.flashSales) {
+                        throw new Error('Invalid backup file format');
+                    }
+                    
+                    if (!confirm('⚠️ Việc restore sẽ ghi đè toàn bộ dữ liệu hiện tại. Bạn có chắc chắn muốn tiếp tục?')) {
+                        return;
+                    }
+                    
+                    // Restore data
+                    localStorage.setItem('shopeedeals_products', JSON.stringify(backup.products));
+                    localStorage.setItem('shopeedeals_categories', JSON.stringify(backup.categories));
+                    localStorage.setItem('shopeedeals_vouchers', JSON.stringify(backup.vouchers));
+                    localStorage.setItem('shopeedeals_flashsales', JSON.stringify(backup.flashSales));
+                    localStorage.setItem('shopeedeals_categoryproducts', JSON.stringify(backup.categoryProducts || {}));
+                    
+                    loadDashboard();
+                    showNotification('📤 Dữ liệu đã được khôi phục thành công! Nhớ đồng bộ lên GitHub.', 'success');
+                } catch (error) {
+                    showNotification('❌ Lỗi: File backup không hợp lệ!', 'error');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset input
+            input.value = '';
+        }
+
+        // Utility Functions
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg z-50 notification max-w-sm`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <span class="flex-shrink-0">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                    <span class="flex-1">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-white hover:text-gray-200">
+                        ✕
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => {
+                        if (document.body.contains(notification)) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enter key for login
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    adminLogin();
+                }
+            });
+
+            // Auto-set today's date for voucher expiry
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('voucherExpiry').value = today;
+
+            // Close modals when clicking outside
+            document.getElementById('githubModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeGitHubModal();
+                }
+            });
+        });
+
+        // Initialize counters from existing data
+        function initializeCounters() {
+            const data = loadDataFromStorage();
+            
+            if (data.products.length > 0) {
+                productIdCounter = Math.max(...data.products.map(p => p.id)) + 1;
+            }
+            if (data.vouchers.length > 0) {
+                voucherIdCounter = Math.max(...data.vouchers.map(v => v.id)) + 1;
+            }
+            if (data.flashSales.length > 0) {
+                flashSaleIdCounter = Math.max(...data.flashSales.map(s => s.id)) + 1;
+            }
+            if (data.categories.length > 0) {
+                categoryIdCounter = Math.max(...data.categories.map(c => c.id)) + 1;
+            }
+            
+            // Initialize category product counter
+            Object.values(data.categoryProducts).forEach(products => {
+                if (products.length > 0) {
+                    categoryProductIdCounter = Math.max(categoryProductIdCounter, ...products.map(p => p.id)) + 1;
+                }
+            });
+        }
+
+        // Initialize on load
+        initializeCounters();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9743b986f3db1fb6',t:'MTc1NjA0NzY4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
